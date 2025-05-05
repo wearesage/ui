@@ -1,0 +1,22 @@
+@mixin desktop-landscape {
+  @media (min-height: 501px) and (orientation: landscape) {
+    @content;
+  }
+}
+
+@mixin desktop-portrait {
+  @media (min-width: 501px) and (orientation: portrait) {
+    @content;
+  }
+}
+
+
+@mixin desktop {
+  @include desktop-landscape {
+    @content;
+  }
+
+  @include desktop-portrait {
+    @content;
+  }
+}

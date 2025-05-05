@@ -1,0 +1,62 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": [
+      "vite/client",
+      "unplugin-vue-router/client",
+      "./src/shims.d.ts",
+      "./src/vite-env.d.ts",
+      "./auto-imports.d.ts",
+      "./typed-router.d.ts",
+    ],
+    "paths": {
+      "@assets/*": [
+        "./src/assets/*"
+      ],
+      "@icons/*": [
+        "./src/assets/icons/*"
+      ],
+      "@classes/*": [
+        "./src/classes/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@composables/*": [
+        "./src/composables/*"
+      ],
+      "@constants/*": [
+        "./src/constants/*"
+      ],
+      "@styles/*": [
+        "./src/styles/*"
+      ],
+      "@util": [
+        "./src/util/index.ts"
+      ],
+    }
+  },
+  "exclude": [
+    "dist"
+  ]
+}

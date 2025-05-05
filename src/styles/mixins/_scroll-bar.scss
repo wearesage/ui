@@ -1,0 +1,33 @@
+@use '../colors.scss' as *;
+
+@mixin hide-scroll-bar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &::scrollbar {
+    display: none;
+  }
+}
+
+@mixin scroll-bar {
+  ::-webkit-scrollbar {
+    width: 1rem;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    border-radius: 1rem;
+    border: 1px solid lighten($black, 20%);
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--black);
+  }
+}
