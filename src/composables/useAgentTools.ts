@@ -1,7 +1,6 @@
 import { ref } from 'vue';
 
-const BASE_URL = 'http://localhost:3000/api/agent';
-
+const BASE_URL = import.meta.env.VITE_WEB3 + '/api/agent'
 export interface ToolExecutionResponse {
   toolName: string;
   result: any;
