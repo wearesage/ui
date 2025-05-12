@@ -37,8 +37,6 @@ SOMA uses Sign-In with Ethereum (SIWE) for secure, wallet-based authentication.
 3. Select your preferred wallet (e.g., MetaMask, WalletConnect)
 4. Follow your wallet's prompts to connect
 
-![Wallet Connection](assets/wallet-connection.png)
-
 ### Signing the Message
 
 After connecting your wallet, you'll need to sign a message to authenticate:
@@ -49,8 +47,6 @@ After connecting your wallet, you'll need to sign a message to authenticate:
    - A list of tools you're authorizing
 2. Click "Sign" in your wallet to approve
 3. Wait for the authentication to complete
-
-![Message Signing](assets/message-signing.png)
 
 ### Tool Authorization
 
@@ -87,8 +83,6 @@ Once authenticated:
    - Microphone input
    - File upload
 
-![Audio Sources](assets/audio-sources.png)
-
 ### Controlling Playback
 
 Use the player controls to manage audio playback:
@@ -107,16 +101,12 @@ SOMA features an AI-powered lyrics analysis tool that provides literary interpre
 2. The lyrics for the current track will be displayed
 3. Lyrics will automatically scroll in sync with the music
 
-![Lyrics Display](assets/lyrics-display.png)
-
 ### Analyzing Lyrics
 
 1. Select specific lyrics by clicking and dragging across the text
 2. The AI chat interface will appear
 3. The AI will provide a literary analysis of the selected lyrics
 4. You can continue the conversation to explore deeper meanings
-
-![Lyrics Analysis](assets/lyrics-analysis.png)
 
 ### Chat Interface Features
 
@@ -161,8 +151,6 @@ The line achieves what great poetry does - it feels simultaneously like somethin
 2. Browse the gallery of available shaders
 3. Click on a shader to preview it
 4. Click "Select" to use the shader in the visualizer
-
-![Shader Gallery](assets/shader-gallery.png)
 
 ### Shader Editor
 
