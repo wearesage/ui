@@ -33,7 +33,7 @@ export const useAuth = defineStore("auth", () => {
     },
     verifyMessage: async ({ message, signature }) => {
       try {
-        const response = await fetch("http://localhost:3000/api/auth/verify-siwe", {
+        const response = await fetch("https://soma-server-8da9bfe46bd3.herokuapp.com/api/auth/verify-siwe", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message, signature }),
