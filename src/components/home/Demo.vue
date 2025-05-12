@@ -1,6 +1,5 @@
 <template>
   <aside class="demo">
-    <!-- <h1><div>5HT</div></h1> -->
     <transition name="fade">
       <Shader
         v-if="sketch && !viewport.mobile"
@@ -14,6 +13,9 @@
   <div
     class="demo-container"
     ref="container">
+    <Button class="prev" @click="prev">
+      <ChevronLeft />
+    </button>
     <Shader
       v-if="editor?.activeSketch"
       class="two"
@@ -41,10 +43,16 @@
         </p>
       </div>
     </transition>
+    <Button class="next" @click="next">
+      <ChevronRight />
+    </Button>
   </div>
 </template>
 
 <script setup lang="ts">
+import ChevronLeft from '../../assets/icons/chevron-left.svg'
+import ChevronRight from '../../assets/icons/chevron-right.svg'
+
 const visualizer = useVisualizer();
 const viewport = useViewport();
 const container = ref(null);
@@ -63,14 +71,10 @@ const uniforms = computed(() => {
     if (datum[0] === 'zoom') {
       datum[2] /= 4;
     }
-    //   if (datum[0] === 'shape') {
-    //     datum[2] = Math.random() * 1000;
-    //   }
+
     else if (datum[0] === 'sides') {
       datum[2] = 2;
-    } else {
-      // datum[2] = randomNumber(datum[4] / 2, datum[4]);
-    }
+    } 
 
     if (datum[0] === 'center') {
       datum[2] += datum[2] / 5;
@@ -94,6 +98,18 @@ watch(
   }
 );
 
+function prev () {
+  selected.value = Math.max(0, selected.value - 1)
+  sketch.value = shaders.published[selected.value]
+  editor.selectSketch(sketch.value);
+}
+
+function next () {
+  selected.value = Math.min(selected.value + 1, shaders.published.length - 1)
+  sketch.value = shaders.published[selected.value]
+  editor.selectSketch(sketch.value);
+}
+
 editor.shuffleVariants = true;
 </script>
 
@@ -113,6 +129,7 @@ aside {
 .demo-container {
   @include size($size);
   margin-right: env(safe-area-inset-right);
+  position: relative;
 }
 
 .two {
@@ -165,7 +182,7 @@ aside {
     display: flex;
     transition: var(--hover-transition);
     content: '';
-    background: linear-gradient(to top left, rgba(lighten($orange, 0%), 1) 0%, rgba($pink, 0.25) 100%);
+    background: linear-gradient(to top left, rgba(lighten($pink, 0%), .2) 0%, rgba($purple, 1) 100%);
 
     @include mobile-portrait {
       border-radius: 0 !important;
@@ -283,4 +300,24 @@ aside {
     margin-top: auto;
   }
 }
+
+.prev {
+  @include position(absolute, 50% null null 1rem, 120);
+  transform: translateY(-50%);
+}
+
+.next {
+  @include position(absolute, 50% 1rem null null, 120);
+  transform: translateY(-50%);
+}
+
+
+.prev, .next {
+  background: transparent !important;
+
+  &:active {
+    transform: translateY(-50%) scale(.9);
+  }
+}
+
 </style>

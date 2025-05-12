@@ -1,92 +1,71 @@
-export const useViewport = defineStore('viewport', () => {
-  const width: Ref<number> = ref(window.innerWidth);
-  const height: Ref<number> = ref(window.innerHeight);
-  const visibility = useDocumentVisibility();
+import { defineStore, acceptHMRUpdate } from "pinia";
+import { createCssVariable } from "../util/styles";
+
+export const useViewport = defineStore("viewport", () => {
+  const width = ref(1);
+  const height = ref(1);
+  const aspectRatio = computed(() => width.value / height.value)
+  const dpr = ref();
+  const touch = ref();
+  const isMobile = computed(() => touch.value)
+  const clicked = ref([-1, -1])
+  const mouse = ref([-1, -1])
+  const popoverVisible = ref(false)
   const orientation = computed(() => {
-    if (width.value > height.value) return 'LANDSCAPE';
-    return 'PORTRAIT';
-  });
-  const mobile = computed(() => {
-    if (orientation.value === 'PORTRAIT' && width.value <= 500) return true;
-    if (orientation.value === 'LANDSCAPE' && height.value <= 500) return true;
-    return false;
-  });
-  const mobileLandscape = computed(() => mobile.value && orientation.value === 'LANDSCAPE');
-  const mobilePortrait = computed(() => mobile.value && orientation.value === 'PORTRAIT');
-  const dpr: Ref<number> = ref(window.devicePixelRatio);
-  const limitedDpr = computed(() => Math.min(2, dpr.value));
-  const fullScreenAvailable = ref(detectFullscreen());
-  const fullScreen = ref(!!document.fullscreenElement);
-  const userHasInteracted = ref(false);
-  const hideUI = ref(false);
-  const touch = ref('ontouchstart' in window);
-  const safari = ref(/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
-  const pwa = ref(navigator?.standalone || window.matchMedia('(display-mode: standalone)').matches);
+    if (width.value >= height.value) return 'LANDSCAPE'
+    return 'PORTRAIT'
+  })
 
-  if (pwa.value) document.body.classList.add('pwa');
-
-  const pointer = ref([
-    [0, 0],
-    [0, 0],
-  ]);
-
-  const selectionBox = computed(() => {
-    const [x1, y1] = pointer.value[0];
-    const [x2, y2] = pointer.value[1];
-    const x = Math.min(x1, x2);
-    const y = Math.min(y1, y2);
-    const width = Math.max(x1, x2) - x;
-    const height = Math.max(y1, y2) - y;
+  const artboard = computed(() => {
     return {
-      x,
-      y,
-      width,
-      height,
-    };
-  });
+      width: width.value,
+      height: height.value,
+      dpr: dpr.value,
+    }
+  })
 
-  function update() {
+  async function set() {
+    await nextTick()
     width.value = window.innerWidth;
     height.value = window.innerHeight;
     dpr.value = window.devicePixelRatio;
-    touch.value = 'ontouchstart' in window;
+    touch.value = "ontouchstart" in window;
+    createCssVariable('--viewport-width', `${width.value}px`)
+    createCssVariable('--viewport-height', `${height.value}px`)
   }
 
-  function onFullscreen() {
-    fullScreen.value = !!document.fullscreenElement;
-  }
+  set()
 
-  function initialize() {
-    document.addEventListener('fullscreenchange', onFullscreen);
-    window.addEventListener('resize', update);
-    window.addEventListener('orientationchange', update);
-  }
+  window.addEventListener("resize", set)
+
+  document.body.addEventListener('click', e => {
+    clicked.value = [e.clientX, e.clientY]
+  })
+
+  document.body.addEventListener('mousemove', e => {
+    mouse.value = [e.clientX, e.clientY]
+  })
 
   return {
     width,
     height,
-    update,
-    mobile,
-    orientation,
-    mobileLandscape,
-    mobilePortrait,
     dpr,
-    limitedDpr,
-    initialize,
-    fullScreen,
-    fullScreenAvailable,
-    userHasInteracted,
-    hideUI,
-    selectionBox,
+    aspectRatio,
     touch,
-    visibility,
-    pwa,
-    safari,
-    $reset() {
-      document.removeEventListener('fullscreenchange', onFullscreen);
-      window.removeEventListener('resize', update);
-    },
+    isMobile,
+    clicked,
+    mouse,
+    popoverVisible,
+    artboard,
+    orientation
   };
 });
 
-if (import.meta.hot) import.meta.hot.accept(acceptHMRUpdate(useViewport, import.meta.hot));
+if (
+  (import.meta as any)?.hot?.accept &&
+  typeof acceptHMRUpdate !== "undefined"
+) {
+  (import.meta as any).hot.accept(
+    acceptHMRUpdate?.(useViewport, (import.meta as any).hot)
+  );
+}

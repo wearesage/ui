@@ -78,10 +78,16 @@ export type Icon =
   | 'keyboard'
   | 'vinyl'
   | 'discord'
-  | 'telegram';
+  | 'telegram'
+  | 'visualizer'
+  | 'arrow-down'
+  | 'halt' 
+  | 'lyrics'
+  | 'user';
 </script>
 
 <script setup lang="ts">
+import ArrowDown from '../../assets/icons/arrow-down.svg';
 import HeartIcon from '../../assets/icons/heart.svg';
 import HeartOutlineIcon from '../../assets/icons/heart-outline.svg';
 import ShareIcon from '../../assets/icons/share.svg';
@@ -154,6 +160,10 @@ import KeyboardIcon from '../../assets/icons/keyboard.svg';
 import VinylIcon from '../../assets/icons/vinyl.svg';
 import DiscordIcon from '../../assets/icons/discord.svg';
 import TelegramIcon from '../../assets/icons/telegram.svg';
+import VisualierIcon from '../../assets/icons/visualizer.svg';
+import HaltIcon from '../../assets/icons/halt.svg';
+import UserIcon from '../../assets/icons/user.svg';
+import LyricsIcon from '../../assets/icons/lyrics.svg';
 
 const map: Record<Icon, any> = {
   heart: HeartIcon,
@@ -226,7 +236,12 @@ const map: Record<Icon, any> = {
   keyboard: KeyboardIcon,
   vinyl: VinylIcon,
   discord: DiscordIcon,
-  telegram: TelegramIcon
+  telegram: TelegramIcon,
+  visualizer: VisualierIcon,
+  'arrow-down': ArrowDown,
+  halt: HaltIcon,
+  user: UserIcon,
+  lyrics: LyricsIcon
 };
 
 defineProps<{

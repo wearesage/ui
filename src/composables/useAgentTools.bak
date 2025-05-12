@@ -1,0 +1,308 @@
+import { type OpenRouterRequestParams } from './useOpenRouterTypes';
+import axios from 'axios';
+import { ref, computed } from 'vue';
+
+export interface ExtendedOpenRouterRequestParams extends OpenRouterRequestParams {
+  tools?: any[];
+  tool_choice?: 'auto' | 'none' | { type: string; function: { name: string } };
+}
+
+export interface Tool {
+  name: string;
+  description: string;
+  parameters: ToolParameter[];
+  execute: (args: Record<string, any>) => Promise<any>;
+}
+
+// New interface for describing items in an array parameter
+export interface ToolParameterItems {
+  type: 'string' | 'number' | 'boolean' | 'object'; // Can be expanded (e.g., 'array' for nested arrays)
+  enum?: string[]; // If items themselves can have an enum
+  // Potentially other JSON Schema properties like 'properties' if item type is 'object'
+}
+
+export interface ToolParameter {
+  name: string;
+  description: string;
+  type: 'string' | 'number' | 'boolean' | 'object' | 'array';
+  required: boolean;
+  enum?: string[];
+  items?: ToolParameterItems; // Added to support "items" schema for array types
+}
+
+export interface ToolExecutionRequest {
+  toolName: string;
+  arguments: Record<string, any>;
+}
+
+export interface ToolExecutionResponse {
+  toolName: string;
+  result: any;
+  error?: string;
+}
+
+const API_BASE_URL = 'http://localhost:3000/api';
+
+export function useAgentTools(options?: {
+  openRouterApiKey?: string;
+  apiBaseUrl?: string;
+}) {
+  const tools = ref<Tool[]>([]);
+  const apiBaseUrl = options?.apiBaseUrl || API_BASE_URL + '/soneium';
+  
+  function registerTool(tool: Tool) {
+    const existingToolIndex = tools.value.findIndex(t => t.name === tool.name);
+    if (existingToolIndex >= 0) {
+      tools.value[existingToolIndex] = tool;
+    } else {
+      tools.value.push(tool);
+    }
+    
+    return tool;
+  }
+  
+  // Get tool by name
+  function getTool(name: string): Tool | undefined {
+    return tools.value.find(tool => tool.name === name);
+  }
+  
+  // Execute a tool by name with arguments
+  async function executeTool(toolName: string, args: Record<string, any>): Promise<ToolExecutionResponse> {
+    const tool = getTool(toolName);
+    
+    if (!tool) {
+      return {
+        toolName,
+        result: null,
+        error: `Tool "${toolName}" not found`
+      };
+    }
+    
+    try {
+      const result = await tool.execute(args);
+      
+      // Check if the result is an error object
+      if (result && typeof result === 'object' && 'error' in result && result.error) {
+        return {
+          toolName,
+          result: null,
+          error: typeof result.error === 'string' ? result.error : JSON.stringify(result)
+        };
+      }
+      
+      return {
+        toolName,
+        result
+      };
+    } catch (error) {
+      return {
+        toolName,
+        result: null,
+        error: error instanceof Error ? error.message : String(error)
+      };
+    }
+  }
+  
+  // Format tools for OpenRouter/LLM consumption
+  const toolsForLLM = computed(() => {
+    return tools.value.map(tool => ({
+      type: 'function',
+      function: {
+        name: tool.name,
+        description: tool.description,
+        parameters: {
+          type: 'object',
+          properties: tool.parameters.reduce((acc, param) => {
+            acc[param.name] = {
+              type: param.type,
+              description: param.description,
+              ...(param.enum ? { enum: param.enum } : {}),
+              ...(param.type === 'array' && param.items ? { items: param.items } : {})
+            };
+            return acc;
+          }, {} as Record<string, any>),
+          required: tool.parameters
+            .filter(param => param.required)
+            .map(param => param.name)
+        }
+      }
+    }));
+  });
+
+  
+  // 1. Get Soneium API Status Tool
+  const getSoneiumStatusTool: Tool = {
+    name: 'getSoneiumStatus',
+    description: 'Get the current status of the Soneium API',
+    parameters: [],
+    execute: async () => {
+      try {
+        const response = await axios.get(`${apiBaseUrl}/status`);
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching Soneium status:', error);
+        throw new Error('Failed to fetch Soneium API status');
+      }
+    }
+  };
+  
+  // 2. Initialize Soneium Wallet Tool
+  const initializeSoneiumWalletTool: Tool = {
+    name: 'initializeSoneiumWallet',
+    description: 'Initialize a new Soneium wallet',
+    parameters: [
+      {
+        name: 'passphrase',
+        description: 'Optional passphrase to secure the wallet',
+        type: 'string',
+        required: false
+      }
+    ],
+    execute: async (args: Record<string, any>) => {
+      try {
+        const response = await axios.post(`${apiBaseUrl}/wallet/initialize`, {
+          passphrase: args.passphrase
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error initializing Soneium wallet:', error);
+        throw new Error('Failed to initialize Soneium wallet');
+      }
+    }
+  };
+  
+  // 3. Send Soneium Transaction Tool
+  const sendSoneiumTransactionTool: Tool = {
+    name: 'sendSoneiumTransaction',
+    description: 'Send a transaction through the Soneium network',
+    parameters: [
+      {
+        name: 'recipient',
+        description: 'Recipient address',
+        type: 'string',
+        required: true
+      },
+      {
+        name: 'amount',
+        description: 'Amount to send',
+        type: 'number',
+        required: true
+      },
+      {
+        name: 'memo',
+        description: 'Optional transaction memo',
+        type: 'string',
+        required: false
+      }
+    ],
+    execute: async (args: Record<string, any>) => {
+      if (!args.recipient) {
+        throw new Error('Recipient address is required');
+      }
+      
+      if (args.amount === undefined || args.amount <= 0) {
+        throw new Error('Valid amount is required');
+      }
+      
+      try {
+        const response = await axios.post(`${apiBaseUrl}/transaction`, {
+          recipient: args.recipient,
+          amount: args.amount,
+          memo: args.memo
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error sending Soneium transaction:', error);
+        throw new Error('Failed to send Soneium transaction');
+      }
+    }
+  };
+  // 4. Brave Web Search Tool
+  const braveWebSearchTool: Tool = {
+    name: 'webSearch',
+    description: 'Search the web using Brave Search API. You MUST provide a specific search query.',
+    parameters: [
+      {
+        name: 'query',
+        description: 'The search query to look up (REQUIRED, must be a non-empty string). Example: "hobby shop in Louisville, KY"',
+        type: 'string',
+        required: true
+      },
+      {
+        name: 'count',
+        description: 'Number of results to return (default: 5)',
+        type: 'number',
+        required: false
+      }
+    ],
+    execute: async (args: any | string) => {
+      console.log('braveWebSearch received args:', args);
+      
+
+      const cacheKey = `search_${args.query.toLowerCase().trim()}`;
+      let cachedResult;
+      
+      try {
+        cachedResult = sessionStorage.getItem(cacheKey);
+        
+        if (cachedResult) {
+          console.log('Using cached search results for:', args.query);
+          return JSON.parse(cachedResult);
+        }
+      } catch (e) {
+        console.warn('SessionStorage not available:', e);
+
+      }
+      
+      const count = args.count || 10;
+      
+      try {
+        // Use our server-side proxy to avoid CORS issues
+        const { data } = await axios.get(API_BASE_URL + `/brave/search`, {
+          params: {
+            query: args.query,
+            count: count || 10
+          }
+        });
+        
+        const searchResults = data.results;
+
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify(searchResults));
+        } catch (e) {
+          console.warn('Failed to cache search results:', e);
+        }
+        
+        return searchResults;
+      } catch (error) {
+        console.error('Error performing Brave web search:', error);
+        
+        return {
+          error: 'Failed to perform web search',
+          status: 'error',
+          details: error instanceof Error ? error.message : String(error),
+          help: 'Please try again with a different search query',
+          query: args.query
+        };
+      }
+    }
+  };
+
+  // Register the Soneium tools by default
+  // registerTool(getSoneiumStatusTool);
+  // registerTool(initializeSoneiumWalletTool);
+  // registerTool(sendSoneiumTransactionTool);
+  registerTool(braveWebSearchTool);
+
+  return {
+    tools,
+    toolsForLLM,
+    registerTool,
+    getTool,
+    executeTool,
+    getSoneiumStatusTool,
+    initializeSoneiumWalletTool,
+    sendSoneiumTransactionTool,
+    braveWebSearchTool
+  };
+}

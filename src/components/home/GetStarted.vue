@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+const auth = useAuth();
 const account = useAccount();
 const modal = useModal();
 const audio = useAudio();
@@ -39,10 +40,17 @@ const initialized = ref(false);
 const router = useRouter();
 const { share } = useShare();
 
+watch(() => auth.authenticated, (authenticated) => {
+  if (authenticated) {
+    visualizer.selectSource(null);
+    router.push('/visualizer')
+  }
+});
+
 async function login() {
-  await visualizer.selectSource(null);
-  if (account.authenticated) return router.push('/visualizer');
-  modal.open('AuthModal', { targetRoute: '/visualizer' });
+  if (auth.authenticated) return router.push('/visualizer');
+  auth.open()
+  // modal.open('AuthModal', { targetRoute: '/visualizer' });
 }
 
 function play() {

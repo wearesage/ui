@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import './styles.scss';
 
-useViewport().initialize()
+useViewport()
 useRAF();
 useFetchShaders();
 useVisualizer();

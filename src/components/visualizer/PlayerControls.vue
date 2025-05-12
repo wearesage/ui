@@ -1,36 +1,22 @@
 <template>
   <section class="controls">
-    <IconButton
-      background="var(--black)"
-      icon="previous"
-      @click="playlist.previous"
+    <IconButton background="var(--black)" icon="previous" @click="playlist.previous"
       :disabled="visualizer.source === 'FILE' || playlist.index === 0" />
     <template v-if="!viewport.mobilePortrait">
       <small>{{ elapsed }}</small>
-      <input
-        type="range"
-        :min="0"
-        :max="1"
-        :step="0.0001"
-        @input="seek"
+      <input type="range" :min="0" :max="1" :step="0.0001" @input="seek"
         :value="seeking ? seekValue : audio.player.progress" />
       <small>{{ duration }}</small>
     </template>
-    <IconButton
-      background="var(--black)"
-      icon="next"
-      @click="playlist.next"
+    <IconButton background="var(--black)" icon="next" @click="playlist.next"
       :disabled="visualizer.source === 'FILE' || playlist.length < 2 || playlist.index === playlist.length - 1" />
-    <IconButton
-      background="var(--black)"
-      :icon="audio.player.playing || seeking ? 'pause' : 'play'"
-      :disabled="!audio.player.src"
-      @click="toggle" />
-    <IconButton
-      v-if="visualizer.source === 'AUDIUS'"
-      background="var(--black)"
-      icon="radio"
+    <IconButton background="var(--black)" :icon="audio.player.playing || seeking ? 'pause' : 'play'"
+      :disabled="!audio.player.src" @click="toggle" />
+    <IconButton v-if="visualizer.source === 'AUDIUS'" background="var(--black)" icon="radio"
       @click="audius.buildRadioStation(playlist.currentTrack?.id)" />
+    <IconButton v-if="visualizer.source === 'AUDIUS'" background="var(--black)" icon="radio"
+      @click="audius.buildRadioStation(playlist.currentTrack?.id)" />
+    <IconButton icon="lyrics" background="var(--black)" @click="visualizer.toggleLyrics" />
   </section>
 </template>
 

@@ -49,6 +49,7 @@ export const useVisualizer = defineStore('visualizer', () => {
       settings.value?.volumeSensitivity || 1
     );
   });
+  const showLyrics = ref(false);
   const stream = computed(() => {
     const speed = settings.value?.speed || 'normal';
     const multiplier = speed === 'normal' ? .9 : speed === 'slow' ? 0.4 : 1.2;
@@ -239,6 +240,16 @@ export const useVisualizer = defineStore('visualizer', () => {
     clearInterval(interval);
   });
 
+  function toggleLyrics () {
+    showLyrics.value = !showLyrics.value
+  }
+
+  watch(() => playlist.lyrics, val => {
+    if (!val) {
+      showLyrics.value = false   
+    }
+  })
+
   return {
     selectSource,
     source,
@@ -251,6 +262,8 @@ export const useVisualizer = defineStore('visualizer', () => {
     tweening,
     tweenProgress,
     tweeningUniforms,
+    showLyrics,
+    toggleLyrics
   };
 });
 

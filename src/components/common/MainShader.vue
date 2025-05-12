@@ -243,6 +243,8 @@ function setSize([w, h]) {
     height: h,
   };
 
+  console.log(w, h)
+
   canvas.value.width = w;
   canvas.value.height = h;
   ctx.value.viewport(0, 0, w, h);
@@ -263,7 +265,8 @@ defineExpose({
 
 <style lang="scss" scoped>
 .shader {
-  @include size(100%);
+  @include size(auto, 100%);
+  @include position(absolute, 0 0 null null, 1);
   opacity: 0;
 
   &.visible {
@@ -272,7 +275,8 @@ defineExpose({
 }
 
 canvas {
-  @include size(100%);
+  @include size(auto, 100%);
+  @include position(absolute, 0 0 0 null);
   display: block;
 }
 </style>

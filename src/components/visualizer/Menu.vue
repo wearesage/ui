@@ -16,14 +16,18 @@
         to="/designs"
         background="var(--black)"
         icon="grid" />
-      <!-- <IconButton
+      <IconButton
+        icon="visualizer"
+        @click="$emit('toggle-chat')"
+        background="var(--black)" />
+      <IconButton
         @click="$emit('toggle-editor')"
         background="var(--black)"
-        icon="code" /> -->
-      <IconButton
+        icon="code" />
+      <!-- <IconButton
         to="/settings"
         background="var(--black)"
-        icon="settings" />
+        icon="settings" /> -->
       <IconButton
         @click="share"
         background="var(--black)"
@@ -42,13 +46,13 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core';
 
-defineEmits(['toggle-editor']);
+defineEmits(['toggle-editor', 'toggle-chat']);
 
 const playlist = usePlaylist();
 const { isSupported, exit, enter, isFullscreen } = useFullscreen();
 const modal = useModal();
 const visualizer = useVisualizer();
-const visible = ref(false);
+const visible = ref(true);
 const { share } = useShare();
 
 let timeout: any;
@@ -60,19 +64,6 @@ function show() {
 function hide() {
   visible.value = false;
 }
-
-watch(
-  () => playlist.currentTrack,
-  async val => {
-    if (val) {
-      visible.value = true;
-      if (visualizer.settings?.alwaysShowTrackInfo) return;
-      await pause(3000);
-      visible.value = false;
-    }
-  },
-  { immediate: true }
-);
 
 function tick() {
   clearTimeout(timeout);

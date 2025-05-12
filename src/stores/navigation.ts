@@ -30,8 +30,8 @@ export const useNavigation = defineStore('navigation', () => {
     () => account.hydrated,
     () => {
       nextTick().then(() => {
-        if (!account.hydrated || route.meta.requiresAuth === false) return;
-        if (account.hydrated && !account.authenticated) router.push('/');
+        if (!account.hydrated && route.meta.requiresAuth !== false) return;
+        if (account.hydrated && !account.authenticated && route.meta.requiresAuth) router.push('/');
       });
     },
     {
