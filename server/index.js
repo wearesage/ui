@@ -43,6 +43,10 @@ const { models } = await createApp({
   staticDirectory: root,
   plugins,
   register(app, { models: { Study } }) {
+    app.get('/.well-known/walletconnect.txt', (req, res) => {
+      res.send(`f86183d2-2ce8-4cce-b4a5-3e775ba83e64=bfddf5384ab45087de736dc49ae5793bbaf961ccceea6c73ab019c045623b262`)
+    })
+
     app.get('/api/public/sketches', async (req, res) => {
       try {
         const study = await Study.model.findById(process.env.KALEIDOSYNC_PUBLISHED).populate('iterations');
