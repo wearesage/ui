@@ -44,7 +44,7 @@ const { models } = await createApp({
   plugins,
   register(app, { models: { Study } }) {
     app.get('/.well-known/walletconnect.txt', (req, res) => {
-      res.send(`f86183d2-2ce8-4cce-b4a5-3e775ba83e64=bfddf5384ab45087de736dc49ae5793bbaf961ccceea6c73ab019c045623b262`)
+      res.send(`f86183d2-2ce8-4cce-b4a5-3e775ba83e64=8126dd4220c074144c7712cb4c0875e867118e6cd18e581f32f0b11a28967dd6`)
     })
 
     app.get('/api/public/sketches', async (req, res) => {
