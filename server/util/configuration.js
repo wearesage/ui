@@ -8,8 +8,7 @@ export function parseConfig(configuration = {}) {
     httpsRedirect: typeof configuration?.httpsRedirect === 'boolean' ? configuration.httpsRedirect : true,
     middleware: {
       cors: {
-        origin: process?.env?.UI || '*',
-        ...(configuration?.middleware?.cors || {}),
+        origin: '*'
       },
       morgan: {
         format: 'combined',
