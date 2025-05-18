@@ -52,8 +52,18 @@ export async function createApp(configuration = {}) {
     if (host === "localhost" || /^(\d{1,3}\.){3}\d{1,3}$/.test(host)) {
       return next();
     }
+
+    // If hostname doesn't start with www., redirect to www version
+    if (!host.startsWith("www.")) {
+      const protocol = req.protocol;
+      const wwwHost = `www.${host}`;
+      const fullUrl = `${protocol}://${wwwHost}${req.originalUrl}`;
+      return res.redirect(301, fullUrl);
+    }
+
+    next();
   });
-  
+
   if (env.NODE_ENV === "production") {
     app.set("trust proxy", trustProxy);
     app.use((req, res, next) => {
